@@ -31,7 +31,7 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Hanwoolderink\\Ollama\\OllamaServiceProvider"
+                "Hanwoolderink\\Ollama\\Laravel\\OllamaServiceProvider"
             ]
         }
     },

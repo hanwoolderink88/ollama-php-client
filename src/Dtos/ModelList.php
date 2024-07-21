@@ -50,6 +50,37 @@ readonly class ModelList
 
     public function sizeReadable(): string
     {
-        return round($this->size / 1000000, 1).'GB';
+        if($this->size < 1000000) {
+            return round($this->size / 1000).' KB';
+        }
+
+        if($this->size < 1000000000) {
+            return round($this->size / 1000000, 1).' MB';
+        }
+
+        return round($this->size / 1000000000, 1).' GB';
+    }
+
+    public function lastModified(): string
+    {
+        $diff = $this->modified_at->diff(new DateTime());
+
+        if($diff->m > 0) {
+            return $diff->m.' months ago';
+        }
+
+        if($diff->d > 0) {
+            return $diff->d.' days ago';
+        }
+
+        if($diff->h > 0) {
+            return $diff->h.' hours ago';
+        }
+
+        if($diff->i > 0) {
+            return $diff->i.' minutes ago';
+        }
+
+        return 'Just now';
     }
 }

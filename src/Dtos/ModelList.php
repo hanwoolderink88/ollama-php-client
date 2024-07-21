@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Hanwoolderink\Ollama\Dtos;
 
+use DateTime;
+
 readonly class ModelList
 {
     public ModelDetails $details;
@@ -14,7 +16,7 @@ readonly class ModelList
     public function __construct(
         public string $name,
         public string $model,
-        public string $modified_at,
+        public DateTime $modified_at,
         public int $size,
         public string $digest,
         array|ModelDetails $details,
@@ -32,14 +34,22 @@ readonly class ModelList
         /** @var ModelDetails $details */
         $details = is_array($data['details']) ? ModelDetails::fromArray($data['details']) : $data['details'];
 
+        /** @var string $modifiedAtStr */
+        $modifiedAtStr = $data['modified_at'];
+
         return new self(
             name: $data['name'],
             model: $data['model'],
-            modified_at: $data['modified_at'],
+            modified_at: new DateTime($modifiedAtStr),
             size: $data['size'],
             digest: $data['digest'],
             details: $details,
             license: $data['license'] ?? null,
         );
+    }
+
+    public function sizeReadable(): string
+    {
+        return round($this->size / 1000000, 1).'GB';
     }
 }

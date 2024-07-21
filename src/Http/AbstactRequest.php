@@ -41,14 +41,14 @@ class AbstactRequest
     {
         try {
             return $this->getClient()->request($method, $uri, $options);
+        } catch (ConnectException $e) {
+            throw new ConnectionException(previous: $e);
         } catch (ClientException $e) {
             if ($e->getResponse()->getStatusCode() === 404) {
                 throw new ModelNotFound(previous: $e);
             }
 
             throw new OllamaException(previous: $e);
-        } catch (ConnectException $e) {
-            throw new ConnectionException(previous: $e);
         } catch (ServerException $e) {
             $code = $e->getResponse()->getStatusCode();
             $body = $e->getResponse()->getBody()->getContents();

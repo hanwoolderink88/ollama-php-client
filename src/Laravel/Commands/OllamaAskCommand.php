@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Hanwoolderink\Ollama\Laravel\Commands;
 
-use Hanwoolderink\Ollama\Dtos\Message;
 use Hanwoolderink\Ollama\Laravel\Facades\Ollama;
 use Illuminate\Console\Command;
 

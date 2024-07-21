@@ -7,6 +7,7 @@ namespace Hanwoolderink\Ollama\Laravel\Providers;
 use GuzzleHttp\Client;
 use Hanwoolderink\Ollama\Laravel\Commands\OllamaAskCommand;
 use Hanwoolderink\Ollama\Laravel\Commands\OllamaModelListCommand;
+use Hanwoolderink\Ollama\Laravel\Commands\OllamaModelPullCommand;
 use Hanwoolderink\Ollama\Ollama;
 use Illuminate\Support\ServiceProvider;
 
@@ -24,6 +25,7 @@ class OllamaServiceProvider extends ServiceProvider
 
         $this->commands([
             OllamaModelListCommand::class,
+            OllamaModelPullCommand::class,
             OllamaAskCommand::class,
         ]);
 

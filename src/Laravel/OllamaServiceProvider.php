@@ -12,7 +12,7 @@ class OllamaServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        $this->mergeConfigFrom(__DIR__ . '/config/ollama.php', 'ollama');
+        $this->mergeConfigFrom(__DIR__ . '/ollamaConfig.php', 'ollama');
 
         if(function_exists('config_path')) {
             $this->publishes([

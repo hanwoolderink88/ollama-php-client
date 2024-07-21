@@ -20,7 +20,7 @@ class CompletionRequests extends AbstactRequest
      * @param  array<int, string>|null  $images
      * @param  array<string, mixed>|null  $options
      * @param  array<int, int>|null  $context
-     * @param  callable(string $response): void  $streamCallback
+     * @param  callable(string $response): void|null  $streamCallback
      * @throws OllamaException
      */
     public function generate(

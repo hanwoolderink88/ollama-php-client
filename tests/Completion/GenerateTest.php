@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Hanwoolderink\Ollama\Tests\Completion;
 
 use Hanwoolderink\Ollama\Dtos\GenerationResponse;
+use Hanwoolderink\Ollama\Dtos\StreamResponse;
 use Hanwoolderink\Ollama\Exceptions\ModelNotFound;
 use Hanwoolderink\Ollama\Ollama;
 use Hanwoolderink\Ollama\Tests\TestCase;
@@ -29,21 +30,16 @@ class GenerateTest extends TestCase
 
         $ollama->completion()->generate(
             model: self::$CompletionModel,
-            prompt: 'Is het moreel gezien verantwoord om een koe te eten?',
+            prompt: 'Why is the sky blue?',
             stream: true,
-            streamCallback: function (string $part) {
-                /** @var array<string, mixed> $json */
-                $json = json_decode($part, true);
-
-                // see the test is streaming in console
-                // /** @var string $response */
-                // $response = $json['response'] ?? '';
+            streamCallback: function (StreamResponse $part) {
+                // /** @var resource $stream */
                 // $stream = fopen('php://stdout', 'w');
-                // fwrite($stream, $response);
+                // fwrite($stream, $part->message->content);
                 // fclose($stream);
 
                 // assert all parts can be decoded
-                $this->assertNotNull($json);
+                $this->assertTrue(true);
             }
         );
     }

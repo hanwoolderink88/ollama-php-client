@@ -6,6 +6,7 @@ namespace Hanwoolderink\Ollama\Http;
 
 use GuzzleHttp\RequestOptions;
 use Hanwoolderink\Ollama\Dtos\GenerationResponse;
+use Hanwoolderink\Ollama\Dtos\StreamResponse;
 use Hanwoolderink\Ollama\Exceptions\OllamaException;
 use Hanwoolderink\Ollama\Http\Traits\HasJsonStreamResponse;
 use InvalidArgumentException;
@@ -20,7 +21,7 @@ class CompletionRequests extends AbstactRequest
      * @param  array<int, string>|null  $images
      * @param  array<string, mixed>|null  $options
      * @param  array<int, int>|null  $context
-     * @param  callable(string $response): void  $streamCallback
+     * @param  callable(StreamResponse $response): void  $streamCallback
      * @throws OllamaException
      */
     public function generate(

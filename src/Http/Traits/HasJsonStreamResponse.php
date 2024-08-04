@@ -5,12 +5,13 @@ declare(strict_types=1);
 namespace Hanwoolderink\Ollama\Http\Traits;
 
 use GuzzleHttp\Psr7\Stream;
+use Hanwoolderink\Ollama\Dtos\StreamResponse;
 use Psr\Http\Message\ResponseInterface;
 
 trait HasJsonStreamResponse
 {
     /**
-     * @param  callable(string $response):void  $callback
+     * @param  callable(StreamResponse $response):void  $callback
      */
     private function streamResponse(ResponseInterface $response, callable $callback): null
     {
@@ -40,7 +41,13 @@ trait HasJsonStreamResponse
                     continue;
                 }
 
-                $callback($part);
+                $json = json_decode($part, true, 512, JSON_THROW_ON_ERROR);
+
+                if(!is_array($json)) {
+                    dd($json);
+                }
+
+                $callback(StreamResponse::fromArray($json));
             }
         }
 

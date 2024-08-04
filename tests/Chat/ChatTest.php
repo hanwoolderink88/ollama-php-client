@@ -6,6 +6,7 @@ namespace Hanwoolderink\Ollama\Tests\Chat;
 
 use Hanwoolderink\Ollama\Dtos\ChatResponse;
 use Hanwoolderink\Ollama\Dtos\Message;
+use Hanwoolderink\Ollama\Dtos\StreamResponse;
 use Hanwoolderink\Ollama\Enums\Role;
 use Hanwoolderink\Ollama\Tests\TestCase;
 
@@ -22,7 +23,7 @@ class ChatTest extends TestCase
     {
         $response = $this->ollama->chat()->message(
             model: self::$CompletionModel,
-            message: new Message('Why is the sky blue?'),
+            messages: [new Message('Why is the sky blue?')],
         );
 
         $this->assertInstanceOf(ChatResponse::class, $response);
@@ -32,10 +33,10 @@ class ChatTest extends TestCase
     {
         $response = $this->ollama->chat()->message(
             model: self::$CompletionModel,
-            message: new Message('Explain please?'),
-            messageHistory: [
+            messages: [
                 new Message('Why is the sky blue?'),
                 new Message('Due to rayleigh scattering.', Role::ASSISTANT),
+                new Message('Explain please?')
             ],
         );
 
@@ -46,16 +47,15 @@ class ChatTest extends TestCase
     {
         $this->ollama->chat()->message(
             model: self::$CompletionModel,
-            message: new Message('Why does the sky appear more blue in the morning and more red in the evening?'),
+            messages: [new Message('Why does the sky appear more blue in the morning and more red in the evening?')],
             stream: true,
-            streamCallback: function (string $response) {
-                $json = json_decode($response, true);
-
+            streamCallback: function (StreamResponse $response) {
+                // /** @var resource $stream */
                 // $stream = fopen('php://stdout', 'w');
-                // fwrite($stream, $json['message']['content']);
+                // fwrite($stream, $response->message->content);
                 // fclose($stream);
 
-                $this->assertNotNull($json);
+                $this->assertTrue(true);
             },
         );
     }

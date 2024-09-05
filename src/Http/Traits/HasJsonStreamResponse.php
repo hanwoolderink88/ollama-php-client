@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Hanwoolderink\Ollama\Http\Traits;
 
+use Generator;
 use GuzzleHttp\Psr7\Stream;
 use Hanwoolderink\Ollama\Dtos\StreamResponse;
 use Psr\Http\Message\ResponseInterface;
@@ -11,9 +12,11 @@ use Psr\Http\Message\ResponseInterface;
 trait HasJsonStreamResponse
 {
     /**
-     * @param  callable(StreamResponse $response):void  $callback
+     * @param ResponseInterface $response
+     *
+     * @return Generator<StreamResponse>
      */
-    private function streamResponse(ResponseInterface $response, callable $callback): null
+    private function streamResponse(ResponseInterface $response): Generator
     {
         /** @var Stream $stream */
         $stream = $response->getBody();
@@ -26,7 +29,7 @@ trait HasJsonStreamResponse
             $parts = explode("\n", $content);
 
             // fix first part with previous read
-            $parts[0] = $previous.$parts[0];
+            $parts[0] = $previous . $parts[0];
             $previous = '';
 
             // store and remove last part
@@ -41,16 +44,11 @@ trait HasJsonStreamResponse
                     continue;
                 }
 
+                /** @var array<string,mixed> $json */
                 $json = json_decode($part, true, 512, JSON_THROW_ON_ERROR);
 
-                if(!is_array($json)) {
-                    dd($json);
-                }
-
-                $callback(StreamResponse::fromArray($json));
+                yield StreamResponse::fromArray($json);
             }
         }
-
-        return null;
     }
 }

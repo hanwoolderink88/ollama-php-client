@@ -19,6 +19,14 @@ class Message
     }
 
     /**
+     * @param  array<int, string>  $images
+     */
+    public static function make(string $content, Role $role = Role::USER, ?array $images = null): self
+    {
+        return new self($content, Role::USER, $images);
+    }
+
+    /**
      * @param  array<string, mixed>  $data
      * @return self
      */

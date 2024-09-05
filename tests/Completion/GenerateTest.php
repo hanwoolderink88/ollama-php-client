@@ -16,7 +16,7 @@ class GenerateTest extends TestCase
     {
         $ollama = new Ollama();
 
-        $response = $ollama->completion()->generate(
+        $response = $ollama->completion()->create(
             model: $this::$CompletionModel,
             prompt: 'Why is the sky blue?',
         );
@@ -28,20 +28,16 @@ class GenerateTest extends TestCase
     {
         $ollama = new Ollama();
 
-        $ollama->completion()->generate(
+        $response = $ollama->completion()->stream(
             model: self::$CompletionModel,
             prompt: 'Why is the sky blue?',
-            stream: true,
-            streamCallback: function (StreamResponse $part) {
-                // /** @var resource $stream */
-                // $stream = fopen('php://stdout', 'w');
-                // fwrite($stream, $part->message->content);
-                // fclose($stream);
-
-                // assert all parts can be decoded
-                $this->assertTrue(true);
-            }
         );
+
+        $this->assertInstanceOf(\Generator::class, $response);
+
+        foreach ($response as $part) {
+            $this->assertInstanceOf(StreamResponse::class, $part);
+        }
     }
 
     public function testGenerateNonExistentModel(): void
@@ -50,7 +46,7 @@ class GenerateTest extends TestCase
 
         $this->expectException(ModelNotFound::class);
 
-        $ollama->completion()->generate(
+        $ollama->completion()->create(
             model: self::$NonExistingModelName,
             prompt: 'Why is the sky blue?',
         );

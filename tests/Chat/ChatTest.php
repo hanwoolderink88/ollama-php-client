@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Hanwoolderink\Ollama\Tests\Chat;
 
+use Generator;
 use Hanwoolderink\Ollama\Dtos\ChatResponse;
 use Hanwoolderink\Ollama\Dtos\Message;
 use Hanwoolderink\Ollama\Dtos\StreamResponse;
@@ -21,9 +22,35 @@ class ChatTest extends TestCase
 
     public function testChat(): void
     {
-        $response = $this->ollama->chat()->message(
+        $response = $this->ollama->chat()->create(
             model: self::$CompletionModel,
-            messages: [new Message('Why is the sky blue?')],
+            messages: [
+                new Message('Why is the sky blue?')
+            ],
+        );
+
+        $this->assertInstanceOf(ChatResponse::class, $response);
+    }
+
+    public function testChatMessageAsStaticFactory(): void
+    {
+        $response = $this->ollama->chat()->create(
+            model: self::$CompletionModel,
+            messages: [
+                Message::make('Why is the sky blue?'),
+            ],
+        );
+
+        $this->assertInstanceOf(ChatResponse::class, $response);
+    }
+
+    public function testChatMessageAsArray(): void
+    {
+        $response = $this->ollama->chat()->create(
+            model: self::$CompletionModel,
+            messages: [
+                ['role' => 'user', 'content' => 'Why is the sky blue?'],
+            ],
         );
 
         $this->assertInstanceOf(ChatResponse::class, $response);
@@ -31,7 +58,7 @@ class ChatTest extends TestCase
 
     public function testChatWithHistory(): void
     {
-        $response = $this->ollama->chat()->message(
+        $response = $this->ollama->chat()->create(
             model: self::$CompletionModel,
             messages: [
                 new Message('Why is the sky blue?'),
@@ -45,18 +72,24 @@ class ChatTest extends TestCase
 
     public function testChatStream(): void
     {
-        $this->ollama->chat()->message(
+        $response = $this->ollama->chat()->stream(
             model: self::$CompletionModel,
-            messages: [new Message('Why does the sky appear more blue in the morning and more red in the evening?')],
-            stream: true,
-            streamCallback: function (StreamResponse $response) {
-                // /** @var resource $stream */
-                // $stream = fopen('php://stdout', 'w');
-                // fwrite($stream, $response->message->content);
-                // fclose($stream);
-
-                $this->assertTrue(true);
-            },
+            messages: [
+                new Message('Why does the sky appear more blue in the morning and more red in the evening?')
+            ],
         );
+
+        $this->assertInstanceOf(Generator::class, $response);
+
+        foreach ($response as $streamResponse) {
+            $this->assertInstanceOf(StreamResponse::class, $streamResponse);
+
+            $array = $streamResponse->toArray();
+
+            $this->assertArrayHasKey('model', $array);
+            $this->assertArrayHasKey('created_at', $array);
+            $this->assertArrayHasKey('message', $array);
+            $this->assertArrayHasKey('done', $array);
+        }
     }
 }

@@ -4,57 +4,81 @@ declare(strict_types=1);
 
 namespace Hanwoolderink\Ollama\Http;
 
+use Generator;
 use GuzzleHttp\RequestOptions;
 use Hanwoolderink\Ollama\Dtos\ChatResponse;
 use Hanwoolderink\Ollama\Dtos\Message;
 use Hanwoolderink\Ollama\Dtos\StreamResponse;
 use Hanwoolderink\Ollama\Http\Traits\HasJsonStreamResponse;
-use InvalidArgumentException;
-use Psr\Http\Message\ResponseInterface;
 
 class ChatRequests extends AbstactRequest
 {
     use HasJsonStreamResponse;
 
     /**
-     * @param array<int, Message> $messages
+     * @param array<int, Message|array<string, string>> $messages
      * @param array<string, mixed>|null $options https://github.com/ollama/ollama/blob/main/docs/modelfile.md#valid-parameters-and-values
-     * @param callable(StreamResponse $response): void|null $streamCallback
      */
-    public function message(
+    public function create(
         string $model,
         array $messages,
         ?string $format = null,
         ?array $options = null,
         ?string $keepAlive = null,
-        bool $stream = false,
-        ?callable $streamCallback = null,
     ): ?ChatResponse {
-        if ($stream && $streamCallback === null) {
-            throw new InvalidArgumentException('streamCallback must be provided when stream is true');
-        }
+        $response = $this->request('POST', 'api/chat', [
+            RequestOptions::JSON => $this->requestBody($model, $messages, $format, $options, $keepAlive, false),
+            RequestOptions::STREAM => false,
+        ]);
 
-        $body = array_filter([
+        $json = $this->json($response);
+
+        return ChatResponse::fromArray($json);
+    }
+
+    /**
+     * @param array<int, Message|array<string, mixed>> $messages
+     * @param array<string, mixed>|null $options
+     *
+     * @return Generator<StreamResponse>
+     */
+    public function stream(
+        string $model,
+        array $messages,
+        ?string $format = null,
+        ?array $options = null,
+        ?string $keepAlive = null,
+    ): Generator {
+        $response = $this->request('POST', 'api/chat', [
+            RequestOptions::JSON => $this->requestBody($model, $messages, $format, $options, $keepAlive, true),
+            RequestOptions::STREAM => true,
+        ]);
+
+        return $this->streamResponse($response);
+    }
+
+    /**
+     * @param array<int, Message|array<string, mixed>> $messages
+     * @param array<string, mixed>|null $options
+     * @return array<string, mixed>
+     */
+    private function requestBody(
+        string $model,
+        array $messages,
+        ?string $format,
+        ?array $options,
+        ?string $keepAlive,
+        bool $stream
+    ): array {
+        return array_filter([
             'model' => $model,
-            'messages' => array_map(fn (Message $message) => $message->toArray(), $messages),
+            'messages' => array_map(function (Message|array $message) {
+                return $message instanceof Message ? $message->toArray() : $message;
+            }, $messages),
             'format' => $format,
             'options' => $options,
             'keepAlive' => $keepAlive,
             'stream' => $stream,
         ], fn ($value) => $value !== null);
-
-        $response = $this->request('POST', 'api/chat', [
-            RequestOptions::JSON => $body,
-            RequestOptions::STREAM => $stream,
-        ]);
-
-        return $stream ? $this->streamResponse($response, $streamCallback) : $this->response($response);
-    }
-
-    private function response(ResponseInterface $response): ChatResponse
-    {
-        $json = $this->json($response);
-
-        return ChatResponse::fromArray($json);
     }
 }

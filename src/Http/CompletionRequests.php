@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Hanwoolderink\Ollama\Http;
 
+use Generator;
 use GuzzleHttp\RequestOptions;
 use Hanwoolderink\Ollama\Dtos\GenerationResponse;
 use Hanwoolderink\Ollama\Dtos\StreamResponse;
@@ -21,10 +22,9 @@ class CompletionRequests extends AbstactRequest
      * @param  array<int, string>|null  $images
      * @param  array<string, mixed>|null  $options
      * @param  array<int, int>|null  $context
-     * @param  callable(StreamResponse $response): void  $streamCallback
      * @throws OllamaException
      */
-    public function generate(
+    public function create(
         string $model,
         string $prompt,
         ?array $images = null,
@@ -34,13 +34,7 @@ class CompletionRequests extends AbstactRequest
         ?string $template = null,
         ?array $context = null,
         ?bool $raw = null,
-        bool $stream = false,
-        ?callable $streamCallback = null,
-    ): ?GenerationResponse {
-        if($stream && $streamCallback === null) {
-            throw new InvalidArgumentException('streamCallback must be provided when stream is true');
-        }
-
+    ): GenerationResponse {
         $response = $this->request('POST', '/api/generate', [
             RequestOptions::JSON => array_filter([
                 'model' => $model,
@@ -51,19 +45,51 @@ class CompletionRequests extends AbstactRequest
                 'system' => $system,
                 'template' => $template,
                 'context' => $context,
-                'stream' => $stream,
+                'stream' => false,
                 'raw' => $raw,
             ], fn ($value) => $value !== null),
-            RequestOptions::STREAM => $stream,
+            RequestOptions::STREAM => false,
         ]);
 
-        return $stream ? $this->streamResponse($response, $streamCallback) : $this->response($response);
-    }
-
-    private function response(ResponseInterface $response): GenerationResponse
-    {
         $json = $this->json($response);
 
         return GenerationResponse::fromArray($json);
+    }
+
+    /**
+     * @param  array<int, string>|null  $images
+     * @param  array<string, mixed>|null  $options
+     * @param  array<int, int>|null  $context
+     * @throws OllamaException
+     * @return Generator<StreamResponse>
+     */
+    public function stream(
+        string $model,
+        string $prompt,
+        ?array $images = null,
+        ?string $format = null,
+        ?array $options = null,
+        ?string $system = null,
+        ?string $template = null,
+        ?array $context = null,
+        ?bool $raw = null,
+    ): Generator {
+        $response = $this->request('POST', '/api/generate', [
+            RequestOptions::JSON => array_filter([
+                'model' => $model,
+                'prompt' => $prompt,
+                'images' => $images,
+                'format' => $format,
+                'options' => $options,
+                'system' => $system,
+                'template' => $template,
+                'context' => $context,
+                'stream' => true,
+                'raw' => $raw,
+            ], fn ($value) => $value !== null),
+            RequestOptions::STREAM => true,
+        ]);
+
+        return $this->streamResponse($response);
     }
 }

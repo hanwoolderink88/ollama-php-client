@@ -34,7 +34,7 @@ class AbstactRequest
     }
 
     /**
-     * @param  array<string,mixed>  $options
+     * @param array<string,mixed> $options
      * @throws OllamaException
      */
     protected function request(string $method, string $uri, array $options = []): ResponseInterface
@@ -46,24 +46,24 @@ class AbstactRequest
                 throw new ModelNotFound(previous: $e);
             }
 
-            throw new OllamaException(previous: $e);
+            throw new OllamaException(message: $e->getMessage(), previous: $e);
         } catch (ConnectException $e) {
-            throw new ConnectionException(previous: $e);
+            throw new ConnectionException(message: $e->getMessage(), previous: $e);
         } catch (ServerException $e) {
             $code = $e->getResponse()->getStatusCode();
             $body = $e->getResponse()->getBody()->getContents();
 
             if ($code === 500 && $body === '{"error":"pull model manifest: file does not exist"}') {
-                throw new ModelNotFound(previous: $e);
+                throw new ModelNotFound(message: $e->getMessage(), previous: $e);
             }
 
             if ($code === 500 && str_contains($body, 'no such file or directory')) {
-                throw new ModelNotFound();
+                throw new ModelNotFound(message: $e->getMessage(), previous: $e);
             }
 
-            throw new OllamaException(previous: $e);
+            throw new OllamaException(message: $e->getMessage(), previous: $e);
         } catch (Throwable $e) {
-            throw new OllamaException(previous: $e);
+            throw new OllamaException(message: $e->getMessage(), previous: $e);
         }
     }
 

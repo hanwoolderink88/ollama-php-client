@@ -14,7 +14,7 @@ use Hanwoolderink\Ollama\Exceptions\OllamaException;
 use Psr\Http\Message\ResponseInterface;
 use Throwable;
 
-class AbstactRequest
+class AbstractRequest
 {
     private Client $client;
 

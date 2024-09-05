@@ -11,7 +11,7 @@ use Hanwoolderink\Ollama\Dtos\Message;
 use Hanwoolderink\Ollama\Dtos\StreamResponse;
 use Hanwoolderink\Ollama\Http\Traits\HasJsonStreamResponse;
 
-class ChatRequests extends AbstactRequest
+class ChatRequests extends AbstractRequest
 {
     use HasJsonStreamResponse;
 

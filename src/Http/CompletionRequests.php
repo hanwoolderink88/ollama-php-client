@@ -14,7 +14,7 @@ use InvalidArgumentException;
 use Psr\Http\Message\ResponseInterface;
 
 // todo: format='json' seems to cut off the http response and return done=false with text not fully generated
-class CompletionRequests extends AbstactRequest
+class CompletionRequests extends AbstractRequest
 {
     use HasJsonStreamResponse;
 

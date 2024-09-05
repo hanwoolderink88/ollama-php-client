@@ -9,7 +9,7 @@ use Hanwoolderink\Ollama\Dtos\ModelList;
 use Hanwoolderink\Ollama\Dtos\ModelShow;
 use Hanwoolderink\Ollama\Exceptions\OllamaException;
 
-class ModelRequests extends AbstactRequest
+class ModelRequests extends AbstractRequest
 {
     /**
      * @return array<int, ModelList>

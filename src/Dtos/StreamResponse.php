@@ -25,17 +25,23 @@ class StreamResponse
         /** @var string $dateAtString */
         $dateAtString = $array['created_at'];
 
-        /** @var array<string, mixed> $message */
-        $message = $array['message'] ?? [];
+        if (isset($array['message'])) {
+            /** @var array<string, mixed> $message */
+            $message = $array['message'];
+
+            $message = new Message(
+                content: $message['content'] ?? '',
+                role: Role::ASSISTANT,
+                images: $message['images'] ?? null,
+            );
+        } else {
+            $message = new Message($array['response']);
+        }
 
         return new self(
             model: $array['model'],
             createdAt: new DateTime($dateAtString),
-            message: new Message(
-                content: $message['content'] ?? '',
-                role: Role::ASSISTANT,
-                images: $message['images'] ?? null,
-            ),
+            message: $message,
             done: $array['done'],
         );
     }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Hanwoolderink\Ollama\Tests\Completion;
 
+use Generator;
 use Hanwoolderink\Ollama\Dtos\GenerationResponse;
 use Hanwoolderink\Ollama\Dtos\StreamResponse;
 use Hanwoolderink\Ollama\Exceptions\ModelNotFound;
@@ -33,7 +34,7 @@ class GenerateTest extends TestCase
             prompt: 'Why is the sky blue?',
         );
 
-        $this->assertInstanceOf(\Generator::class, $response);
+        $this->assertInstanceOf(Generator::class, $response);
 
         foreach ($response as $part) {
             $this->assertInstanceOf(StreamResponse::class, $part);

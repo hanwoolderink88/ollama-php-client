@@ -34,7 +34,7 @@ trait HasJsonStreamResponse
 
             // store and remove last part
             $last = $parts[count($parts) - 1];
-            if (strlen($last) > 0 && $last[-1] !== '}') {
+            if (!json_validate($last)) {
                 $previous = $last;
                 unset($parts[count($parts) - 1]);
             }

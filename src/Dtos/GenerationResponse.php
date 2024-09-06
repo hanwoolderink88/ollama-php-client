@@ -15,7 +15,7 @@ class GenerationResponse
     public function __construct(
         public string $model,
         public DateTime $created_at,
-        public string $response,
+        public string $content,
         public bool $done,
         public string $done_reason,
         public array $context,
@@ -40,7 +40,7 @@ class GenerationResponse
         return new self(
             model: $data['model'],
             created_at: new DateTime($createdAtString),
-            response: $data['response'],
+            content: $data['response'],
             done: $data['done'],
             done_reason: $data['done_reason'],
             context: $data['context'],
